@@ -1,22 +1,28 @@
-import RPi.GPIO as GPIO
+import wiringpi
 import time
 
-GPIO.setmode(GPIO.BOARD)
+# Number of rations to dispense
+rations = 3
 
-GPIO.setup(12, GPIO.OUT)
+# Pin for servo data
+pin = 18
 
-p = GPIO.PWM(12, 50)
+wiringpi.wiringPiSetupGpio()
+wiringpi.pinMode(18, wiringpi.GPIO.PWM_OUTPUT)
+wiringpi.pwmSetMode(wiringpi.GPIO.PWM_MODE_MS)
 
-p.start(7.5)
+wiringpi.pwmSetClock(192)
+wiringpi.pwmSetRange(2000)
 
-try:
-    while True:
-        p.ChangeDutyCycle(7.5)  # turn towards 90 degree
-        time.sleep(1) # sleep 1 second
-        p.ChangeDutyCycle(2.5)  # turn towards 0 degree
-        time.sleep(1) # sleep 1 second
-        p.ChangeDutyCycle(12.5) # turn towards 180 degree
-        time.sleep(1) # sleep 1 second
-except KeyboardInterrupt:
-    p.stop()
-    GPIO.cleanup()
+wiringpi.pwmWrite(pin,50)
+
+for x in range(rations):
+
+    print "ration ", x
+
+    for pulse in range(50, 250, 1):
+        wiringpi.pwmWrite(18, pulse)
+        time.sleep(0.01)
+    for pulse in range(50, 250, -1):
+        wiringpi.pwmWrite(pin, pulse)
+        time.sleep(0.01)
